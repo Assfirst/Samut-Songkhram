@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>สมุทรสงคราม - เมืองแห่งวิถีชีวิต 3 น้ำ</title>
+ <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href='https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.css' rel='stylesheet' />
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Prompt', sans-serif;
+        }
+
+        /* Container Custom */
+        .container-custom {
+            width: 100%;
+            margin-left: auto;
+            margin-right: auto;
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+
+        @media (min-width: 640px) {
+            .container-custom {
+                max-width: 640px;
+                padding-left: 1.5rem;
+                padding-right: 1.5rem;
+            }
+        }
+        @media (min-width: 768px) {
+            .container-custom {
+                max-width: 768px;
+            }
+        }
+        @media (min-width: 1024px) {
+            .container-custom {
+                max-width: 960px;
+            }
+        }
+        @media (min-width: 1280px) {
+            .container-custom {
+                max-width: 1140px;
+            }
+        }
+
+        /* Animations */
+        .slide-in {
+            animation: slideIn 0.5s ease-out;
+        }
+        @keyframes slideIn {
+            from { transform: translateX(-100%); }
+            to { transform: translateX(0); }
+        }
+
+        /* Hamburger Menu */
+        .hamburger-line {
+            transition: all 0.3s ease-in-out;
+        }
+        .hamburger-active .line-1 {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+        .hamburger-active .line-2 {
+            opacity: 0;
+        }
+        .hamburger-active .line-3 {
+            transform: rotate(-45deg) translate(5px, -5px);
+        }
+
+        /* Responsive Typography */
+        .text-responsive {
+            font-size: clamp(1rem, 2.5vw, 1.5rem);
+        }
+
+        /* Responsive Spacing */
+        .section-padding {
+            padding-top: clamp(3rem, 8vw, 5rem);
+            padding-bottom: clamp(3rem, 8vw, 5rem);
+        }
+
+        /* Card Grid */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            width: 100%;
+            max-width: 100%;
+        }
+
+        /* Image Hover Effect */
+        .image-hover {
+            transition: transform 0.3s ease;
+        }
+        .image-hover:hover {
+            transform: scale(1.05);
+        }
+
+        /* Smooth Scroll */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+    </style>
+</head>
+<body class="bg-[#f8f9fa]">
+      <!-- Navbar -->
+ <nav class="bg-white/80 backdrop-blur-md shadow-lg fixed w-full z-50">
+        <div class="container-custom mx-auto">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-3">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Samut_Songkhram_Province_Emblem.svg/1200px-Samut_Songkhram_Province_Emblem.svg.png" 
+                         alt="โลโก้สมุทรสงคราม" 
+                         class="h-10 w-auto">
+                    <span class="text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-500 text-transparent bg-clip-text">
+                        สมุทรสงคราม
+                    </span>
+                </div>
+
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="#home" class="text-gray-700 hover:text-purple-600 transition-colors duration-300">หน้าแรก</a>
+                    <a href="#attractions" class="text-gray-700 hover:text-purple-600 transition-colors duration-300">สถานที่เที่ยว</a>
+                    <a href="#experiences" class="text-gray-700 hover:text-purple-600 transition-colors duration-300">กิจกรรม</a>
+                    <a href="#events" class="text-gray-700 hover:text-purple-600 transition-colors duration-300">ปฏิทิน</a>
+                    <a href="#contact" 
+                       class="px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-500 text-white rounded-full 
+                              hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5">
+                        ติดต่อ
+                    </a>
+                </div>
+
+                <!-- Hamburger Button -->
+                <button id="mobile-menu-button" class="md:hidden flex flex-col space-y-1.5 p-2">
+                    <span class="hamburger-line line-1 w-6 h-0.5 bg-gray-800 block"></span>
+                    <span class="hamburger-line line-2 w-6 h-0.5 bg-gray-800 block"></span>
+                    <span class="hamburger-line line-3 w-6 h-0.5 bg-gray-800 block"></span>
+                </button>
+            </div>
+
+            <!-- Mobile Menu -->
+            <div id="mobile-menu" class="hidden md:hidden bg-white/95 backdrop-blur-md">
+                <div class="container-custom py-4 space-y-3">
+                    <a href="#home" class="block text-gray-700 hover:text-purple-600 transition-colors duration-300">หน้าแรก</a>
+                    <a href="#attractions" class="block text-gray-700 hover:text-purple-600 transition-colors duration-300">สถานที่เที่ยว</a>
+                    <a href="#experiences" class="block text-gray-700 hover:text-purple-600 transition-colors duration-300">กิจกรรม</a>
+                    <a href="#events" class="block text-gray-700 hover:text-purple-600 transition-colors duration-300">ปฏิทิน</a>
+                    <a href="#contact" 
+                       class="inline-block px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-500 text-white 
+                              rounded-full hover:shadow-lg transition-all duration-300">
+                        ติดต่อ
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="relative min-h-screen flex items-center">
+        <div class="absolute inset-0">
+            <img src="https://tatapi.tourismthailand.org/tatfs/Image/CustomPOI/Picture/P03013169_1.jpeg" 
+                 alt="ตลาดน้ำอัมพวา" 
+                 class="w-full h-full object-cover"
+                 loading="lazy">
+            <div class="absolute inset-0 bg-gradient-to-r from-purple-900/70 to-blue-900/70"></div>
+        </div>
+        <div class="container-custom relative mx-auto py-20">
+            <div class="max-w-2xl" data-aos="fade-up" data-aos-duration="1000">
+                <h1 class="text-4xl md:text-6xl font-bold mb-6 leading-tight text-white">
+                    <span class="block">สัมผัสเสน่ห์</span>
+                    <span class="block bg-gradient-to-r from-purple-400 to-pink-400 text-transparent bg-clip-text">
+                        สมุทรสงคราม
+                    </span>
+                </h1>
+                <p class="text-lg md:text-xl mb-8 text-gray-200">
+                    เมืองแห่งวิถีชีวิต 3 น้ำ สัมผัสประสบการณ์ที่แตกต่าง 
+                    ดื่มด่ำกับวัฒนธรรมและธรรมชาติอันงดงาม
+                </p>
+                <div class="flex flex-wrap gap-4">
+                    <a href="#attractions" 
+                       class="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-500 rounded-full 
+                              text-white hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-300">
+                        <span class="flex items-center">
+                            <span>เริ่มการเดินทาง</span>
+                            <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                            </svg>
+                        </span>
+                    </a>
+                    <a href="#video" 
+                       class="px-6 py-3 bg-white/20 backdrop-blur-md rounded-full text-white 
+                              hover:bg-white/30 transition-all duration-300 flex items-center">
+                        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"/>
+                        </svg>
+                        <span>ดูวิดีโอ</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scroll Indicator -->
+        <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
+            </svg>
+        </div>
+    </section>
+      <!-- Attractions Section -->
+   <section id="attractions" class="section-padding bg-white">
+        <div class="container-custom">
+            <h2 class="text-3xl font-bold text-center mb-12" data-aos="fade-up">
+                <span class="bg-gradient-to-r from-purple-600 to-blue-500 text-transparent bg-clip-text">
+                    สถานที่ท่องเที่ยวยอดนิยม
+                </span>
+            </h2>
+            <div class="card-grid">
+                <!-- ตลาดน้ำอัมพวา -->
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden group" data-aos="fade-up">
+                    <div class="relative overflow-hidden">
+                        <img src="https://tatapi.tourismthailand.org/tatfs/Image/CustomPOI/Picture/P03013169_1.jpeg" 
+                             alt="ตลาดน้ำอัมพวา" 
+                             class="w-full h-64 object-cover image-hover"
+                             loading="lazy">
+                        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div class="flex items-center justify-center h-full">
+                                <button class="px-4 py-2 bg-white/90 rounded-full text-gray-800 transform -translate-y-2 group-hover:translate-y-0 transition-transform">
+                                    ดูรายละเอียด
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <h3 class="text-xl font-semibold mb-2">ตลาดน้ำอัมพวา</h3>
+                        <p class="text-gray-600 mb-4">ตลาดน้ำยามเย็นที่มีชื่อเสียง พร้อมชมหิ่งห้อยในยามค่ำคืน</p>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-1 text-yellow-400">
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                </svg>
+                                <span class="text-gray-600">4.8</span>
+                            </div>
+                            <a href="#" class="text-purple-600 hover:text-purple-700 font-medium flex items-center">
+                                รายละเอียด
+                                <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ดอนหอยหลอด -->
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden group" data-aos="fade-up" data-aos-delay="100">
+                    <div class="relative overflow-hidden">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/Don_Hoi_Lot_01.jpg/1200px-Don_Hoi_Lot_01.jpg" 
+                             alt="ดอนหอยหลอด" 
+                             class="w-full h-64 object-cover image-hover"
+                             loading="lazy">
+                        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div class="flex items-center justify-center h-full">
+                                <button class="px-4 py-2 bg-white/90 rounded-full text-gray-800 transform -translate-y-2 group-hover:translate-y-0 transition-transform">
+                                    ดูรายละเอียด
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <h3 class="text-xl font-semibold mb-2">ดอนหอยหลอด</h3>
+                        <p class="text-gray-600 mb-4">แหล่งหอยหลอดที่มีชื่อเสียงระดับโลก พร้อมวิถีชีวิตชาวประมง</p>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-1 text-yellow-400">
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                </svg>
+                                <span class="text-gray-600">4.7</span>
+                            </div>
+                            <a href="#" class="text-purple-600 hover:text-purple-700 font-medium flex items-center">
+                                รายละเอียด
+                                <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- วัดบางกุ้ง -->
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden group" data-aos="fade-up" data-aos-delay="200">
+                    <div class="relative overflow-hidden">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Wat_Bang_Kung_02.jpg/1200px-Wat_Bang_Kung_02.jpg" 
+                             alt="วัดบางกุ้ง" 
+                             class="w-full h-64 object-cover image-hover"
+                             loading="lazy">
+                        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div class="flex items-center justify-center h-full">
+                                <button class="px-4 py-2 bg-white/90 rounded-full text-gray-800 transform -translate-y-2 group-hover:translate-y-0 transition-transform">
+                                    ดูรายละเอียด
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <h3 class="text-xl font-semibold mb-2">วัดบางกุ้ง</h3>
+                        <p class="text-gray-600 mb-4">โบสถ์เก่าแก่ที่ถูกปกคลุมด้วยรากไทร สถานที่ประวัติศาสตร์</p>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-1 text-yellow-400">
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                </svg>
+                                <span class="text-gray-600">4.9</span>
+                            </div>
+                            <a href="#" class="text-purple-600 hover:text-purple-700 font-medium flex items-center">
+                                รายละเอียด
+                                <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+        <!-- Map Section -->
+    <section id="map" class="section-padding bg-gray-50">
+        <div class="container-custom">
+            <h2 class="text-3xl font-bold text-center mb-12" data-aos="fade-up">
+                <span class="bg-gradient-to-r from-purple-600 to-blue-500 text-transparent bg-clip-text">
+                    แผนที่ท่องเที่ยว
+                </span>
+            </h2>
+            <div class="bg-white rounded-xl shadow-xl overflow-hidden" data-aos="fade-up">
+                <div id="interactive-map" class="h-[500px] w-full"></div>
+                <div class="p-5">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <button class="flex items-center justify-center px-4 py-2 rounded-full bg-purple-100 text-purple-600 hover:bg-purple-200 transition-colors">
+                            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
+                            </svg>
+                            สถานที่ท่องเที่ยว
+                        </button>
+                        <button class="flex items-center justify-center px-4 py-2 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200 transition-colors">
+                            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M3 3a1 1 0 000 2h11a1 1 0 100-2H3zM3 7a1 1 0 000 2h5a1 1 0 000-2H3zM3 11a1 1 0 100 2h4a1 1 0 100-2H3zM13 16a1 1 0 102 0v-5.586l1.293 1.293a1 1 0 001.414-1.414l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 101.414 1.414L13 10.414V16z"/>
+                            </svg>
+                            ร้านอาหาร
+                        </button>
+                        <button class="flex items-center justify-center px-4 py-2 rounded-full bg-green-100 text-green-600 hover:bg-green-200 transition-colors">
+                            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z"/>
+                            </svg>
+                            ที่พัก
+                        </button>
+                        <button class="flex items-center justify-center px-4 py-2 rounded-full bg-orange-100 text-orange-600 hover:bg-orange-200 transition-colors">
+                            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/>
+                                <path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7a1 1 0 011-1h2a1 1 0 011 1v8a1 1 0 01-1 1h-.05a2.5 2.5 0 01-4.9 0H10a1 1 0 01-1-1V7a1 1 0 011-1h4z"/>
+                            </svg>
+                            การเดินทาง
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Events Section -->
+    <section id="events" class="section-padding bg-white">
+        <div class="container-custom">
+            <h2 class="text-3xl font-bold text-center mb-12" data-aos="fade-up">
+                <span class="bg-gradient-to-r from-purple-600 to-blue-500 text-transparent bg-clip-text">
+                    กิจกรรมและเทศกาล
+                </span>
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Event Card 1 -->
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden group" data-aos="fade-up">
+                    <div class="relative">
+                        <img src="https://example.com/event1.jpg" 
+                             alt="เทศกาลอาหารทะเล" 
+                             class="w-full h-48 object-cover"
+                             loading="lazy">
+                        <div class="absolute top-4 left-4 bg-red-500 text-white px-3 py-1 rounded-full text-sm">
+                            15 มิ.ย. 2024
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <h3 class="text-xl font-semibold mb-2">เทศกาลอาหารทะเล</h3>
+                        <p class="text-gray-600 mb-4">
+                            สัมผัสรสชาติอาหารทะเลสดใหม่ พร้อมกิจกรรมสาธิตการทำอาหาร
+                        </p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-500">
+                                <svg class="w-5 h-5 inline-block mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M10 18a8 8 0 100-16 8 8 0 000 16zm0-2a6 6 0 110-12 6 6 0 010 12zm-1-5h2v2H9v-2zm0-4h2v2H9V7z"/>
+                                </svg>
+                                เริ่ม 18:00 น.
+                            </span>
+                            <button class="px-4 py-2 bg-purple-100 text-purple-600 rounded-full 
+                                       hover:bg-purple-200 transition-colors duration-300">
+                                จองตั๋ว
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Event Card 2 -->
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden group" data-aos="fade-up" data-aos-delay="100">
+                    <div class="relative">
+                        <img src="https://example.com/event2.jpg" 
+                             alt="ล่องเรือชมหิ่งห้อย" 
+                             class="w-full h-48 object-cover"
+                             loading="lazy">
+                        <div class="absolute top-4 left-4 bg-red-500 text-white px-3 py-1 rounded-full text-sm">
+                            20 มิ.ย. 2024
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <h3 class="text-xl font-semibold mb-2">ล่องเรือชมหิ่งห้อย</h3>
+                        <p class="text-gray-600 mb-4">
+                            ดื่มด่ำกับบรรยากาศยามค่ำคืน พร้อมชมแสงระยิบระยับจากหิ่งห้อย
+                        </p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-500">
+                                <svg class="w-5 h-5 inline-block mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M10 18a8 8 0 100-16 8 8 0 000 16zm0-2a6 6 0 110-12 6 6 0 010 12zm-1-5h2v2H9v-2zm0-4h2v2H9V7z"/>
+                                </svg>
+                                เริ่ม 19:00 น.
+                            </span>
+                            <button class="px-4 py-2 bg-purple-100 text-purple-600 rounded-full 
+                                       hover:bg-purple-200 transition-colors duration-300">
+                                จองตั๋ว
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Event Card 3 -->
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden group" data-aos="fade-up" data-aos-delay="200">
+                    <div class="relative">
+                        <img src="https://example.com/event3.jpg" 
+                             alt="ตลาดนัดวิถีชุมชน" 
+                             class="w-full h-48 object-cover"
+                             loading="lazy">
+                        <div class="absolute top-4 left-4 bg-red-500 text-white px-3 py-1 rounded-full text-sm">
+                            25 มิ.ย. 2024
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <h3 class="text-xl font-semibold mb-2">ตลาดนัดวิถีชุมชน</h3>
+                        <p class="text-gray-600 mb-4">
+                            เลือกซื้อสินค้าพื้นเมือง อาหารท้องถิ่น และผลิตภัณฑ์ OTOP
+                        </p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-500">
+                                <svg class="w-5 h-5 inline-block mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M10 18a8 8 0 100-16 8 8 0 000 16zm0-2a6 6 0 110-12 6 6 0 010 12zm-1-5h2v2H9v-2zm0-4h2v2H9V7z"/>
+                                </svg>
+                                เริ่ม 16:00 น.
+                            </span>
+                            <button class="px-4 py-2 bg-purple-100 text-purple-600 rounded-full 
+                                       hover:bg-purple-200 transition-colors duration-300">
+                                จองตั๋ว
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+        <!-- Footer -->
+    <footer class="bg-gray-900 text-white pt-16 pb-8">
+        <div class="container-custom">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center mb-6">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Samut_Songkhram_Province_Emblem.svg/1200px-Samut_Songkhram_Province_Emblem.svg.png" 
+                             alt="โลโก้" 
+                             class="h-12 w-auto">
+                        <span class="ml-3 text-xl font-bold">สมุทรสงคราม</span>
+                    </div>
+                    <p class="text-gray-400 mb-6">
+                        ศูนย์ข้อมูลการท่องเที่ยวจังหวัดสมุทรสงคราม 
+                        แหล่งรวมข้อมูลการท่องเที่ยวครบวงจร
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <span class="sr-only">Facebook</span>
+                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                            </svg>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <span class="sr-only">Instagram</span>
+                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 0C8.74 0 8.333.015 7.053.072 5.775.132 4.905.333 4.14.63c-.789.306-1.459.717-2.126 1.384S.935 3.35.63 4.14C.333 4.905.131 5.775.072 7.053.012 8.333 0 8.74 0 12s.015 3.667.072 4.947c.06 1.277.261 2.148.558 2.913.306.788.717 1.459 1.384 2.126.667.666 1.336 1.079 2.126 1.384.766.296 1.636.499 2.913.558C8.333 23.988 8.74 24 12 24s3.667-.015 4.947-.072c1.277-.06 2.148-.262 2.913-.558.788-.306 1.459-.718 2.126-1.384.666-.667 1.079-1.335 1.384-2.126.296-.765.499-1.636.558-2.913.06-1.28.072-1.687.072-4.947s-.015-3.667-.072-4.947c-.06-1.277-.262-2.149-.558-2.913-.306-.789-.718-1.459-1.384-2.126C21.319 1.347 20.651.935 19.86.63c-.765-.297-1.636-.499-2.913-.558C15.667.012 15.26 0 12 0zm0 2.16c3.203 0 3.585.016 4.85.071 1.17.055 1.805.249 2.227.415.562.217.96.477 1.382.896.419.42.679.819.896 1.381.164.422.36 1.057.413 2.227.057 1.266.07 1.646.07 4.85s-.015 3.585-.074 4.85c-.061 1.17-.256 1.805-.421 2.227-.224.562-.479.96-.899 1.382-.419.419-.824.679-1.38.896-.42.164-1.065.36-2.235.413-1.274.057-1.649.07-4.859.07-3.211 0-3.586-.015-4.859-.074-1.171-.061-1.816-.256-2.236-.421-.569-.224-.96-.479-1.379-.899-.421-.419-.69-.824-.9-1.38-.165-.42-.359-1.065-.42-2.235-.045-1.26-.061-1.649-.061-4.844 0-3.196.016-3.586.061-4.861.061-1.17.255-1.814.42-2.234.21-.57.479-.96.9-1.381.419-.419.81-.689 1.379-.898.42-.166 1.051-.361 2.221-.421 1.275-.045 1.65-.06 4.859-.06l.045.03zm0 3.678c-3.405 0-6.162 2.76-6.162 6.162 0 3.405 2.76 6.162 6.162 6.162 3.405 0 6.162-2.76 6.162-6.162 0-3.405-2.76-6.162-6.162-6.162zM12 16c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4zm7.846-10.405c0 .795-.646 1.44-1.44 1.44-.795 0-1.44-.646-1.44-1.44 0-.794.646-1.439 1.44-1.439.793-.001 1.44.645 1.44 1.439z"/>
+                            </svg>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <span class="sr-only">Twitter</span>
+                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">ข้อมูลติดต่อ</h3>
+                    <ul class="space-y-3 text-gray-400">
+                        <li class="flex items-start">
+                            <svg class="w-5 h-5 mr-3 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                            ศาลากลางจังหวัดสมุทรสงคราม
+                        </li>
+                        <li class="flex items-center">
+                            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                            </svg>
+                            034-xxx-xxx
+                        </li>
+                        <li class="flex items-center">
+                            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                            </svg>
+                            info@samutsongkhram.go.th
+                        </li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">ลิงก์ด่วน</h3>
+                    <ul class="space-y-3">
+                        <li>
+                            <a href="#attractions" class="text-gray-400 hover:text-white transition-colors">
+                                สถานที่ท่องเที่ยว
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#events" class="text-gray-400 hover:text-white transition-colors">
+                                กิจกรรมและเทศกาล
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#map" class="text-gray-400 hover:text-white transition-colors">
+                                แผนที่ท่องเที่ยว
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">รับข่าวสาร</h3>
+                    <p class="text-gray-400 mb-4">
+                        ติดตามข่าวสารและโปรโมชันล่าสุดจากเรา
+                    </p>
+                    <form class="space-y-3">
+                        <div>
+                            <input type="email" 
+                                   placeholder="อีเมลของคุณ" 
+                                   class="w-full px-4 py-2 rounded-full bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                        </div>
+                        <button type="submit" 
+                                class="w-full px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-500 text-white rounded-full hover:shadow-lg transition-all duration-300">
+                            ติดตาม
+                        </button>
+                    </form>
+                </div>
+            </div>
+            <div class="mt-12 pt-8 border-t border-gray-800">
+                <p class="text-center text-gray-400">
+                    &copy; 2024 จังหวัดสมุทรสงคราม. All rights reserved.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Weather Widget -->
+    <div id="weather-widget" class="fixed bottom-24 right-4 bg-white/80 backdrop-blur-md rounded-2xl shadow-lg p-4 z-40">
+        <div class="flex items-center gap-4">
+            <div class="weather-icon text-4xl">🌤️</div>
+            <div>
+                <div class="text-2xl font-bold">32°C</div>
+                <div class="text-sm text-gray-600">สมุทรสงคราม</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chatbot -->
+    <div id="chatbot" class="fixed bottom-4 right-4 z-50">
+        <button id="chat-toggle" 
+                class="bg-gradient-to-r from-purple-600 to-blue-500 text-white rounded-full p-4 shadow-lg hover:shadow-xl transition-shadow">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                      d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
+            </svg>
+        </button>
+        <div id="chat-window" 
+             class="hidden absolute bottom-16 right-0 w-80 bg-white rounded-2xl shadow-2xl overflow-hidden">
+            <div class="p-4 border-b border-gray-200">
+                <h3 class="font-semibold">แชทกับเรา</h3>
+            </div>
+            <div id="chat-messages" class="h-96 overflow-y-auto p-4">
+                <!-- Chat messages will be added here -->
+            </div>
+            <div class="p-4 border-t border-gray-200">
+                <div class="flex gap-2">
+                    <input type="text" 
+                           id="chat-input" 
+                           class="flex-1 px-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:border-purple-500"
+                           placeholder="พิมพ์ข้อความ...">
+                    <button id="chat-send" 
+                            class="px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-500 text-white rounded-full hover:shadow-lg transition-all">
+                        ส่ง
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src='https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.js'></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    
+    <script>
+        // Initialize AOS
+        AOS.init({
+            duration: 1000,
+            once: true,
+            offset: 100
+        });
+
+        // Mobile Menu Toggle
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+            mobileMenuButton.classList.toggle('hamburger-active');
+        });
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!mobileMenu.contains(e.target) && !mobileMenuButton.contains(e.target)) {
+                mobileMenu.classList.add('hidden');
+                mobileMenuButton.classList.remove('hamburger-active');
+            }
+        });
+
+        // Mapbox initialization
+        mapboxgl.accessToken = 'YOUR_MAPBOX_TOKEN';
+        const map = new mapboxgl.Map({
+            container: 'interactive-map',
+            style: 'mapbox://styles/mapbox/streets-v11',
+            center: [100.0014, 13.4125], // สมุทรสงคราม coordinates
+            zoom: 12
+        });
+
+        // Add markers to map
+        const markers = [
+            {
+                coordinates: [100.0014, 13.4125],
+                title: 'ตลาดน้ำอัมพวา'
+            },
+            // Add more markers as needed
+        ];
+
+        markers.forEach(marker => {
+            new mapboxgl.Marker()
+                .setLngLat(marker.coordinates)
+                .setPopup(new mapboxgl.Popup().setHTML(`<h3>${marker.title}</h3>`))
+                .addTo(map);
+        });
+
+        // Weather Widget
+        async function getWeather() {
+            try {
+                const response = await fetch(
+                    'https://api.openweathermap.org/data/2.5/weather?lat=13.4125&lon=100.0014&appid=YOUR_WEATHER_API_KEY&units=metric'
+                );
+                const data = await response.json();
+                document.querySelector('#weather-widget .weather-icon').textContent = getWeatherEmoji(data.weather[0].main);
+                document.querySelector('#weather-widget .text-2xl').textContent = `${Math.round(data.main.temp)}°C`;
+            } catch (error) {
+                console.error('Error fetching weather:', error);
+            }
+        }
+
+        function getWeatherEmoji(weather) {
+            const weatherEmojis = {
+                Clear: '☀️',
+                Clouds: '☁️',
+                Rain: '🌧️',
+                Thunderstorm: '⛈️',
+                Snow: '🌨️',
+                Mist: '🌫️'
+            };
+            return weatherEmojis[weather] || '🌤️';
+        }
+
+        // Chatbot functionality
+        const chatToggle = document.getElementById('chat-toggle');
+        const chatWindow = document.getElementById('chat-window');
+        const chatInput = document.getElementById('chat-input');
+        const chatSend = document.getElementById('chat-send');
+        const chatMessages = document.getElementById('chat-messages');
+
+        chatToggle.addEventListener('click', () => {
+            chatWindow.classList.toggle('hidden');
+        });
+
+        chatSend.addEventListener('click', sendMessage);
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+
+        function sendMessage() {
+            const message = chatInput.value.trim();
+            if (message) {
+                addMessage('user', message);
+                chatInput.value = '';
+                // Simulate bot response
+                setTimeout(() => {
+                    addMessage('bot', 'ขอบคุณสำหรับข้อความ เราจะติดต่อกลับโดยเร็วที่สุด');
+                }, 1000);
+            }
+        }
+
+        function addMessage(type, text) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('mb-4', 'flex', type === 'user' ? 'justify-end' : 'justify-start');
+            messageDiv.innerHTML = `
+                <div class="px-4 py-2 rounded-lg ${type === 'user' ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-800'}">
+                    ${text}
+                </div>
+            `;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Initialize weather on page load
+        getWeather();
+        
+        // Update weather every 30 minutes
+        setInterval(getWeather, 1800000);
+    </script>
+</body>
+</html>
+    
